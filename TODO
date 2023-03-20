@@ -1,0 +1,32 @@
+[ ] 1) 
+[ ] Update PIP
+[ ] - Create Virtual Environment
+[ ] - Activate Virtual Environment
+
+[ ] 2) 
+[ ] Install packages:
+[ ]    - airflow 
+[ ]    - spark
+[ ]    - neo4j
+[ ]    - minio
+[ ]    - fastapi
+
+[ ] 3) Create folders:
+[ ]    - data
+[ ]    - dags
+[ ]    - 
+
+[ ] 4) Configure tools/services:
+[ ]    - airflow 
+[ ]    - spark
+[ ]    - neo4j
+[ ]    - minio
+[ ]    - fastapi
+
+[ ] 5)
+
+[ ] 6)
+
+[ ] 7)
+
+[ ] 8)
