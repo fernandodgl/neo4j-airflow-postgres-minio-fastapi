@@ -1,32 +1,30 @@
-[ ] 1) 
-[ ] Update PIP
-[ ] - Create Virtual Environment
-[ ] - Activate Virtual Environment
+[X] 1) Create Venv:
+[x] - Update PIP
+[x] - Create Virtual Environment or use WSL
+[x] - Activate Virtual Environment or USL
+[x] - Create repository on Github
 
-[ ] 2) 
-[ ] Install packages:
-[ ]    - airflow 
-[ ]    - spark
-[ ]    - neo4j
-[ ]    - minio
-[ ]    - fastapi
+[X] 2) Install packages:
+[x] - airflow
+[x] - postgres (airflow) 
+[x] - spark
+[x] - neo4j
+[x] - minio
+[x] - fastapi
 
-[ ] 3) Create folders:
-[ ]    - data
-[ ]    - dags
-[ ]    - 
+[X] 3) Create folders, export requirements and import data and DAG:
+[x] - data
+[x] - dags
+[x] - Q9Y261.xml
+[x] - DAG
 
 [ ] 4) Configure tools/services:
-[ ]    - airflow 
-[ ]    - spark
-[ ]    - neo4j
-[ ]    - minio
-[ ]    - fastapi
-
-[ ] 5)
-
-[ ] 6)
+[ ] - airflow 
+[ ] - spark
+[ ] - neo4j
+[ ] - minio
 
 [ ] 7)
 
 [ ] 8)
+
