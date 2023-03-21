@@ -2,6 +2,8 @@ from datetime import datetime, timedelta
 from parse_uniprot_xml import download_xml_from_minio, parse_uniprot_xml, connect_to_neo4j, store_data_in_neo4j
 from airflow import DAG
 from airflow.operators.python import PythonOperator
+from minio import Minio
+from minio.error import S3Error
 
 default_args = {
     'owner': 'airflow',
@@ -30,7 +32,7 @@ def execute_pipeline():
         secret_key="minioadmin",
         secure=False
     )
-    bucket_name = "your-bucket-name"
+    bucket_name = "bucket"
     object_name = "Q9Y261.xml"
     download_xml_from_minio(bucket_name, object_name, minio_client)
 

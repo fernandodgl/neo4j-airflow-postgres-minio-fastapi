@@ -1,60 +1,87 @@
-version: "3.9"
+version: '3.9'
 
 services:
-  airflow:
-    image: apache/airflow:2.2.3-python3.8
+  postgres:
+    image: postgres:13
     environment:
-      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
-      - AIRFLOW__CORE__LOAD_EXAMPLES=False
+      - POSTGRES_USER=airflow
+      - POSTGRES_PASSWORD=airflow
+      - POSTGRES_DB=airflow
     volumes:
-      - ./data_pipeline:/opt/airflow/dags
+      - postgres-data:/var/lib/postgresql/data
 
   minio:
-    image: bitnami/minio:latest
+    image: minio/minio:latest
     command: server /data
     environment:
-      - MINIO_ROOT_USER=minioadmin
-      - MINIO_ROOT_PASSWORD=minioadmin
+      - MINIO_ROOT_USER=admin
+      - MINIO_ROOT_PASSWORD=password
     ports:
       - "9000:9000"
     volumes:
       - minio-data:/data
+  
+  spark-master:
+    image: bitnami/spark:3.2.1
+    environment:
+      - SPARK_MODE=master
+
+  spark-worker:
+    image: bitnami/spark:3.2.1
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark-master:7077
+
+  airflow:
+    build: ./airflow
+    depends_on:
+      - postgres
+      - minio
+      - neo4j
+      - spark-master
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
+      - AIRFLOW__CORE__FERNET_KEY=46BKJoQYlPPOexq0OhDZnIlNepKFf87WFwLbfzqDDho=
+      - AIRFLOW__CORE__LOAD_EXAMPLES=False
+      - _AIRFLOW_WWW_USER_CREATE=True
+      - _AIRFLOW_WWW_USER_USERNAME=airflow
+      - _AIRFLOW_WWW_USER_PASSWORD=airflow
+      #- _AIRFLOW_WWW_USER_EMAIL=admin@example.com
+      #- _PIP_ADDITIONAL_REQUIREMENTS=${_PIP_ADDITIONAL_REQUIREMENTS:-minio}
+    ports:
+      - "8080:8080"
+    volumes:
+      - airflow-dags:/opt/airflow/dags
 
   neo4j:
-    image: neo4j:4.4.2
+    image: neo4j:4.4.0
     environment:
       - NEO4J_AUTH=neo4j/password
     ports:
       - "7474:7474"
       - "7687:7687"
     volumes:
-      - neo4j-data:/data
-
-  spark-master:
-    image: bitnami/spark:3.2.0
-    environment:
-      - SPARK_MODE=master
-
-  spark-worker:
-    image: bitnami/spark:3.2.0
-    environment:
-      - SPARK_MODE=worker
-      - SPARK_MASTER_URL=spark://spark-master:7077
-
-  spark-worker-2:
-    image: bitnami/spark:3.2.0
-    environment:
-      - SPARK_MODE=worker
-      - SPARK_MASTER_URL=spark://spark-master:7077
+      - neo4j-data:/data    
 
   fastapi:
-    build: ./fastapi
+    image: tiangolo/uvicorn-gunicorn-fastapi:python3.9
+    environment:
+      - APP_MODULE=app:app
+    depends_on:
+      - neo4j
+      - airflow
     ports:
-      - "8000:8000"
+      - "8000:80"
+    volumes:
+      - ./fastapi:/app
 
 volumes:
+  postgres-data:
   minio-data:
   neo4j-data:
+  airflow-dags:
 
 networks:
   network:
+    driver: bridge

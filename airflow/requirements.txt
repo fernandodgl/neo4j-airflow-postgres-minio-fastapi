@@ -1,0 +1,8 @@
+apache-airflow
+apache-airflow-providers-http
+apache-airflow-providers-postgres
+minio
+pyspark
+neo4j
+fastapi
+neo4j

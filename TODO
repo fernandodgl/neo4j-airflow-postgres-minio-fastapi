@@ -18,13 +18,26 @@
 [x] - Q9Y261.xml
 [x] - DAG
 
-[ ] 4) Configure tools/services:
-[ ] - airflow 
-[ ] - spark
-[ ] - neo4j
-[ ] - minio
+[x] 4) Configure tools/services and dependencies:
+[x] - airflow 
+[x] - spark
+[x] - neo4j
+[x] - minio
+[ ] - services dependencies
 
 [ ] 7)
 
 [ ] 8)
 
+## FILE STRUCTURE
+.
+├── airflow
+│   ├── dags
+│   │   ├── your_dag_file.py
+│   ├── Dockerfile
+│   ├── entrypoint.sh
+│   └── requirements.txt
+├── docker-compose.yml
+└── fastapi_app
+    └── main.py
+###
