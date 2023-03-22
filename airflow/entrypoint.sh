@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-SUDO apt-get update && apt-get upgrade
+apt-get update && apt-get upgrade
 # Initialize the database
 airflow db init
 
@@ -23,18 +23,3 @@ airflow webserver
 tail -f /dev/null
 
 
-### TEST
-#!/bin/bash
-# entrypoint.sh
-
-# Apply database migrations
-#echo "Applying database migrations..."
-#airflow db upgrade
-
-# Create an admin user
-#echo "Creating an admin user..."
-#airflow users create --username admin --password admin --firstname admin --lastname admin --role Admin --email admin@example.com
-
-# Start the web server, with "-p 8080" flag to set the port
-#echo "Starting the web server on port 8080..."
-#exec airflow webserver -p 8080
