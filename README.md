@@ -57,7 +57,7 @@ This project contains the following containers:
 
 ## Architecture components
 
-## insert img
+![Screenshot](architecture.png)
 
 ## Setup
 
@@ -66,7 +66,7 @@ This project contains the following containers:
     $ git clone https://github.com/fernandodgl/weavebio
 ### Build containers
 
-Inside the weavebio folder (root)
+Inside the 'weavebio' folder (root)
 
     $ docker-compose build --no-cache
 
