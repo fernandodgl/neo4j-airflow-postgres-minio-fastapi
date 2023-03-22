@@ -57,7 +57,7 @@ This project contains the following containers:
 
 ## Architecture components
 
-![Screenshot](architecture.png)
+![Screenshot](architecture_small.png)
 
 ## Setup
 
