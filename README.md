@@ -30,6 +30,30 @@ This project contains the following containers:
     * Image: 0.95.0
     * Database Port: 8000
 
+## File Structure
+
+.
+├── airflow
+│   ├── dags
+│   │   ├── parse_uniprot_xml.py
+|   |   ├── uniprot_data_pipeline.py
+│   ├── Dockerfile
+│   ├── entrypoint.sh
+│   └── requirements.txt
+├── data
+├── fastapi
+│   │   ├── app.py
+|   |   ├── Dockerfile
+|   |   ├── requirements.txt
+├── logs
+├── minio
+│   │   ├── Dockerfile
+|   |   ├── requirements.txt
+|   |   ├── setup.sh
+└── docker-compose.yml
+└── README.md
+└── TODO
+
 ## Architecture components
 
 ## insert img
@@ -55,7 +79,7 @@ If you want to run in background:
 
     $ docker-compose up -d
 
-### Check if you can access
+### Check if you can access:
 
 |        Application        |URL                          |Credentials                         |
 |----------------|-------------------------------|-----------------------------|
