@@ -57,31 +57,6 @@ If you want to run in background:
 
 ### Check if you can access
 
-Airflow: http://localhost:8080
-* User: admin
-* Password: password
-
-
-Neo4j - Database Test:
-
-* Server: localhost:7474
-* Database: neo4j
-* User: neo4j
-* Password: password
-
-Minio - Datalake:
-
-* Server: localhost:9000
-* Bucket: bucket
-* User: admin
-* Password: password
-
-FastAPI - GET Requests:
-
-* Server: localhost:8000/docs
- 
-## Stack
-
 |        Application        |URL                          |Credentials                         |
 |----------------|-------------------------------|-----------------------------|
 |Airflow| [http://localhost:8080](http://localhost:8080) | ``` User: admin``` <br> ``` Pass: password``` |         |
