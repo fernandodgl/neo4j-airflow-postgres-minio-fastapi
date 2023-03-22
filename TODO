@@ -33,11 +33,23 @@
 .
 ├── airflow
 │   ├── dags
-│   │   ├── your_dag_file.py
+│   │   ├── parse_uniprot_xml.py
+|   |   ├── uniprot_data_pipeline.py
 │   ├── Dockerfile
 │   ├── entrypoint.sh
 │   └── requirements.txt
-├── docker-compose.yml
-└── fastapi_app
-    └── main.py
+├── data
+├── fastapi
+│   │   ├── app.py
+|   |   ├── Dockerfile
+|   |   ├── requirements.txt
+├── logs
+├── minio
+│   │   ├── Dockerfile
+|   |   ├── requirements.txt
+|   |   ├── setup.sh
+└── docker-compose.yml
+└── README.md
+└── TODO
+
 ###
