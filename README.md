@@ -32,7 +32,7 @@ This project contains the following containers:
 
 ## File Structure
 
-.
+```bash
 ├── airflow
 │   ├── dags
 │   │   ├── parse_uniprot_xml.py
@@ -53,6 +53,7 @@ This project contains the following containers:
 └── docker-compose.yml
 └── README.md
 └── TODO
+```
 
 ## Architecture components
 
