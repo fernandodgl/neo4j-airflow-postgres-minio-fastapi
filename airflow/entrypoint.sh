@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-
+SUDO apt-get update && apt-get upgrade
 # Initialize the database
 airflow db init
 
