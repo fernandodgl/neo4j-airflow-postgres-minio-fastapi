@@ -8,7 +8,7 @@ This project contains the following containers:
     * Database Port: 5432
 
 * Airflow: Airflow webserver and Scheduler.
-    * Image: docker-airflow-spark:1.10.7_3.1.2
+    * Image: apache/airflow:2.2.3
     * Port: 8080
 
 * Spark: Spark Master.
