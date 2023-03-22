@@ -1,73 +1,53 @@
-###
-### template
-###
 
-# Airflow Spark
+# Weave.bio Data Engineering Challenge
 
 This project contains the following containers:
 
-* postgres: Postgres database for Airflow metadata and a Test database to test whatever you want.
-    * Image: postgres:9.6
+* Postgres: Postgres database for Airflow metadata 
+    * Image: postgres:13
     * Database Port: 5432
-    * References: https://hub.docker.com/_/postgres
 
-* airflow-webserver: Airflow webserver and Scheduler.
+* Airflow: Airflow webserver and Scheduler.
     * Image: docker-airflow-spark:1.10.7_3.1.2
-    * Port: 8282
+    * Port: 8080
 
-* spark: Spark Master.
-    * Image: bitnami/spark:3.1.2
-    * Port: 8181
-    * References: 
-      * https://github.com/bitnami/bitnami-docker-spark
-      * https://hub.docker.com/r/bitnami/spark/tags/?page=1&ordering=last_updated
+* Spark: Spark Master.
+    * Image: bitnami/spark:3.2.1
+    * Port: 7077
 
-* spark-worker-N: Spark workers. You can add workers copying the containers and changing the container name inside the docker-compose.yml file.
-    * Image: bitnami/spark:3.1.2
-    * References: 
-      * https://github.com/bitnami/bitnami-docker-spark
-      * https://hub.docker.com/r/bitnami/spark/tags/?page=1&ordering=last_updated
+* Spark-worker-N: Spark workers. More workers can be added if needed.
+    * Image: bitnami/spark:3.2.1
+    
+* MiniO: Local Datalake
+    * Image: postgres:13
+    * Web console Port: 9000
 
-* jupyter-spark: Jupyter notebook with pyspark for interactive development.
-  * Image: jupyter/pyspark-notebook:spark-3.1.2
-  * Port: 8888
-  * References: 
-    * https://hub.docker.com/layers/jupyter/pyspark-notebook/spark-3.1.2/images/sha256-37398efc9e51f868e0e1fde8e93df67bae0f9c77d3d3ce7fe3830faeb47afe4d?context=explore
-    * https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html#jupyter-pyspark-notebook
-    * https://hub.docker.com/r/jupyter/pyspark-notebook/tags/
+* Neo4j: Postgres database for Airflow metadata 
+    * Image: neo4j:4.4.0
+    * Database Port: 7474
+
+* FastAPI: Requests via API
+    * Image: 0.95.0
+    * Database Port: 8000
 
 ## Architecture components
 
-![](./doc/architecture.png "Architecture")
+## insert img
 
 ## Setup
 
 ### Clone project
 
-    $ git clone https://github.com/cordon-thiago/airflow-spark
+    $ git clone https://github.com/fernandodgl/weavebio
+### Build containers
 
-### Build airflow Docker
+Inside the weavebio folder (root)
 
-Inside the airflow-spark/docker/docker-airflow
+    $ docker-compose build --no-cache
 
-    $ docker build --rm --force-rm -t docker-airflow-spark:1.10.7_3.1.2 .
-
-Optionally, you can override the arguments in the build to choose specific Spark, Hadoop and Airflow versions. As an example, here is how to build an image containing Airflow version `1.10.14`, Spark version `2.4.7` and Hadoop version `2.7`.
-
-    $ docker build --rm --force-rm \
-    -t docker-airflow-spark:1.10.14_2.4.7 . \
-    --build-arg AIRFLOW_VERSION=1.10.14 \
-    --build-arg SPARK_VERSION=2.4.7 \
-    --build-arg HADOOP_VERSION=2.7
-
-Spark and hadoop versions follow the versions as defined at Spark download page: https://spark.apache.org/downloads.html
-
-Airflow versions can be found here: https://pypi.org/project/apache-airflow/#history
-
-If you change the name or the tag of the docker image when building, remember to update the name/tag in docker-compose file.
 ### Start containers
 
-Navigate to airflow-spark/docker and:
+At the same path above:
 
     $ docker-compose up
 
@@ -75,206 +55,46 @@ If you want to run in background:
 
     $ docker-compose up -d
 
-Note: when running the docker-compose for the first time, the images `postgres:9.6`, `bitnami/spark:3.1.2` and `jupyter/pyspark-notebook:spark-3.1.2` will be downloaded before the containers started.
-
 ### Check if you can access
 
-Airflow: http://localhost:8282
+Airflow: http://localhost:8080
+* User: admin
+* Password: password
 
-Spark Master: http://localhost:8181
 
-PostgreSql - Database Test:
+Neo4j - Database Test:
 
-* Server: localhost:5432
-* Database: test
-* User: test
-* Password: postgres
+* Server: localhost:7474
+* Database: neo4j
+* User: neo4j
+* Password: password
 
-Postgres - Database airflow:
+Minio - Datalake:
 
-* Server: localhost:5432
-* Database: airflow
-* User: airflow
-* Password: airflow
+* Server: localhost:9000
+* Bucket: bucket
+* User: admin
+* Password: password
 
-Jupyter Notebook: http://127.0.0.1:8888
-  * For Jupyter notebook, you must copy the URL with the token generated when the container is started and paste in your browser. The URL with the token can be taken from container logs using:
+FastAPI - GET Requests:
+
+* Server: localhost:8000/docs
+ 
+## Stack
+
+|        Application        |URL                          |Credentials                         |
+|----------------|-------------------------------|-----------------------------|
+|Airflow| [http://localhost:8080](http://localhost:8080) | ``` User: admin``` <br> ``` Pass: password``` |         |
+|Neo4j| **Database:** [http://localhost:7474](http://localhost:7474) | ``` User: neo4j``` <br> ``` Pass: password``` |         |
+|MinIO| [http://localhost:9000](http://localhost:9000) | ``` User: admin``` <br> ``` Pass: password``` |           |
+|FastAPI | [http://localhost:8000/docs](http://localhost:8000/docs)|  |         |
   
-        $ docker logs -f docker_jupyter-spark_1
 
-## How to run a DAG to test
+## References
 
-1. Configure spark connection acessing airflow web UI http://localhost:8282 and going to Connections
-   ![](./doc/airflow_connections_menu.png "Airflow Connections")
+[neo4j.com](https://neo4j.com/docs/ogm-manual/current/reference/)
 
-2. Edit the spark_default connection inserting `spark://spark` in Host field and Port `7077`
-    ![](./doc/airflow_spark_connection.png "Airflow Spark connection")
+[airflow.apache.org](https://airflow.apache.org/docs/apache-airflow/stable/)
 
-3. Run the spark-test DAG
-   
-4. Check the DAG log for the task spark_job. You will see the result printed in the log
-   ![](./doc/airflow_dag_log.png "Airflow log")
+[min.io]([https://min.io/docs/minio/linux/developers/go/API.html](https://min.io/docs/minio/linux/reference/minio-server/minio-server.html)
 
-5. Check the spark application in the Spark Master web UI (http://localhost:8181)
-   ![](./doc/spark_master_app.png "Spark Master UI")
-
-## How to run the Spark Apps via spark-submit
-After started your docker containers, run the command below in your terminal:
-```
-$ docker exec -it docker_spark_1 spark-submit --master spark://spark:7077 <spark_app_path> [optional]<list_of_app_args>
-```
-
-Example running the hellop-world.py application:
-```
-$ docker exec -it docker_spark_1 spark-submit --master spark://spark:7077 /usr/local/spark/app/hello-world.py /usr/local/spark/resources/data/airflow.cfg
-```
-
-## Increasing the number of Spark Workers
-
-You can increase the number of Spark workers just adding new services based on `bitnami/spark:3.1.2` image to the `docker-compose.yml` file like following:
-
-```
-spark-worker-n:
-        image: bitnami/spark:3.1.2
-        user: root
-        networks:
-            - default_net
-        environment:
-            - SPARK_MODE=worker
-            - SPARK_MASTER_URL=spark://spark:7077
-            - SPARK_WORKER_MEMORY=1G
-            - SPARK_WORKER_CORES=1
-            - SPARK_RPC_AUTHENTICATION_ENABLED=no
-            - SPARK_RPC_ENCRYPTION_ENABLED=no
-            - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
-            - SPARK_SSL_ENABLED=no
-        volumes:
-            - ../spark/app:/usr/local/spark/app # Spark scripts folder (Must be the same path in airflow and Spark Cluster)
-            - ../spark/resources/data:/usr/local/spark/resources/data #Data folder (Must be the same path in airflow and Spark Cluster)
-
-```
-
-## Adding Airflow Extra packages
-
-Rebuild Dockerfile (in this example, adding GCP extra):
-
-    $ docker build --rm --build-arg AIRFLOW_DEPS="gcp" -t docker-airflow-spark:1.10.7_3.1.2 .
-
-After successfully built, run docker-compose to start container:
-
-    $ docker-compose up
-
-More info at: https://github.com/puckel/docker-airflow#build
-
-## Useful docker commands
-
-    List Images:
-    $ docker images <repository_name>
-
-    List Containers:
-    $ docker container ls
-
-    Check container logs:
-    $ docker logs -f <container_name>
-
-    To build a Dockerfile after changing sth (run inside directoty containing Dockerfile):
-    $ docker build --rm -t <tag_name> .
-
-    Access container bash:
-    $ docker exec -i -t <container_name> /bin/bash
-
-## Useful docker-compose commands
-
-    Start Containers:
-    $ docker-compose -f <compose-file.yml> up -d
-
-    Stop Containers:
-    $ docker-compose -f <compose-file.yml> down --remove-orphans
-    
-# Extras
-## Spark + Postgres sample
-
-* The DAG [spark-postgres.py](dags/spark-postgres.py) loads [movies.csv](spark/resources/data/movies.csv) and [ratings.csv](spark/resources/data/ratings.csv) data into Postgres tables and query these tables to generate a list of top 10 movies with more rates.
-  * This DAG runs the load-postgres.py and read-postgres.py applications. These applications are also available in the notebooks [load-postgres-notebook.ipynb](notebooks/load-postgres-notebook.ipynb) and [read-postgres-notebook.ipynb](notebooks/read-postgres-notebook.ipynb).
-
-
-  ###
-  ### template 2
-  ###
-
-  # docker-airflow-spark
-Docker with Airflow + Postgres + Spark cluster + JDK (spark-submit support) + Jupyter Notebooks
-
-## 📦 The Containers
-
-* **airflow-webserver**: Airflow webserver and scheduler, with spark-submit support.
-    * image: docker-airflow2:latest (custom, Airflow version 2.2.4)
-      * Based on python:3.7-stretch, [puckel/docker-airflow](https://github.com/puckel/docker-airflow) and [cordon-thiago/airflow-spark](https://github.com/cordon-thiago/airflow-spark/)
-    * port: 8080
-
-* **postgres**: Postgres database, used by Airflow.
-    * image: postgres:13.6
-    * port: 5432
-
-* **spark-master**: Spark Master.
-    * image: bitnami/spark:3.2.1
-    * port: 8081
-
-* **spark-worker[-N]**: Spark workers (default number: 1). Modify docker-compose.yml file to add more.
-    * image: bitnami/spark:3.2.1
-
-* **jupyter-spark**: Jupyter notebook with pyspark support.
-    * image: jupyter/pyspark-notebook:spark-3.2.1
-    * port: 8888
-
-## 🛠 Setup
-
-### Clone project
-
-    $ git clone https://github.com/pyjaime/docker-airflow-spark
-
-### Build airflow Docker
-
-    $ cd docker-airflow-spark/airflow/
-    $ docker build --rm -t docker-airflow2:latest .
-  
-### Setup the sandbox
-The sandbox will contain the folders where data will be persisted from the containers, and some test files.
-We will create the folder easily:
-  
-    $ cd docker-airflow-spark/
-    $ cp -R sandbox-test/. ../sandbox/
-
-### Launch containers
-
-    $ cd docker-airflow-spark/
-    $ docker-compose -f docker-compose.yml up -d
-
-### Check accesses
-
-* Airflow: http://localhost:8080
-* Spark Master: http://localhost:8081
-* Jupyter Notebook: http://localhost:8888 (follow the instructions to get a token)
-  
-## 👣 Additional steps
-  
-### Create a test user for Airflow
-  
-    $ docker-compose run airflow-webserver airflow users create --role Admin --username admin \
-      --email admin --firstname admin --lastname admin --password admin
-
-### Edit connection from Airflow to Spark
-
-* Go to Airflow UI > Admin > Edit connections
-* Edit spark_default entry:
-  * Connection Type: Spark
-  * Host: spark://spark
-  * Port: 7077 
-
-### Test spark-submit from Airflow
-  
-Go to the Airflow UI and run the test_spark_submit_operator DAG :)
-
-## 🎉 A big thank you
-
-THANK YOU [Thiago Cordon](https://github.com/cordon-thiago) 
