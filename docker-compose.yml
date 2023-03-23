@@ -13,9 +13,10 @@ services:
   minio:
     image: minio/minio
     container_name: weave-minio
-    command: server /data --console-address ":9000" 
+    command: server /data --console-address ":9001" 
     ports: 
       - '9000:9000'
+      - '9001:9001'
     
     volumes:
       - data:/data
