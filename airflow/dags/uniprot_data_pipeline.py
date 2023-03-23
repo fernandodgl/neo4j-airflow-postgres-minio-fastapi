@@ -30,9 +30,9 @@ dag = DAG(
 def execute_pipeline():
     # Download the XML file from MinIO
     minio_client = Minio(
-        "minio:9000",
-        access_key="minioadmin",
-        secret_key="minioadmin",
+        "http://localhost:9000",
+        access_key="admin",
+        secret_key="password",
         secure=False
     )
     bucket_name = "bucket"
@@ -40,6 +40,7 @@ def execute_pipeline():
     download_xml_from_minio(bucket_name, object_name, minio_client)
 
     # Parse the XML file and process the data
+    file_name = f"/data/{object_name}"
     parsed_data = parse_uniprot_xml(object_name)
 
     # Connect to the Neo4j database

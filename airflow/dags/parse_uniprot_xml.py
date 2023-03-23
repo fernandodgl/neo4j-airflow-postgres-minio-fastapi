@@ -4,11 +4,10 @@ from minio import Minio
 from minio.error import S3Error
 from neo4j import GraphDatabase, basic_auth
 
-
 def download_xml_from_minio(bucket_name, object_name, minio_client):
     try:
         data = minio_client.get_object(bucket_name, object_name)
-        with open(object_name, 'wb') as file:
+        with open(f"data/{object_name}", 'wb') as file:
             for d in data.stream(32 * 1024):
                 file.write(d)
     except S3Error as err:
