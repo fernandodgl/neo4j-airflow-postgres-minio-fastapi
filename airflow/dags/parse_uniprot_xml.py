@@ -1,21 +1,32 @@
+import os
 import xml.etree.ElementTree as ET
 import requests
 from minio import Minio
 from minio.error import S3Error
 from neo4j import GraphDatabase, basic_auth
 
-def download_xml_from_minio(bucket_name, object_name, minio_client):
+
+def download_xml_from_minio(bucket_name, object_name, minio_client, local_xml_path):
     try:
+        os.makedirs(os.path.dirname(local_xml_path), exist_ok=True)
         data = minio_client.get_object(bucket_name, object_name)
-        with open(f"data/{object_name}", 'wb') as file:
+        with open(local_xml_path, 'wb') as file:
             for d in data.stream(32 * 1024):
                 file.write(d)
     except S3Error as err:
         print(f"Error: {err}")
 
-
 def parse_uniprot_xml(file_name):
-    tree = ET.parse(file_name)
+    try:
+        tree = ET.parse(file_name, parser=ET.XMLParser(encoding='utf-8'))
+        root = tree.getroot()
+        # Parse the XML data and return it as a dictionary or other data structure
+        # ...
+    except ET.ParseError as e:
+        # Log the error message and continue execution
+        print(f"Error parsing XML file: {e}")
+        return {}
+    tree = ET.parse(file_name, parser=ET.XMLParser(encoding='utf-8'))
     root = tree.getroot()
     parsed_data = []
 

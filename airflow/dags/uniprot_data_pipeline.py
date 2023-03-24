@@ -1,4 +1,5 @@
 import sys
+import os
 from datetime import datetime, timedelta
 from parse_uniprot_xml import download_xml_from_minio, parse_uniprot_xml, connect_to_neo4j, store_data_in_neo4j
 from airflow.models import DAG, Variable
@@ -36,9 +37,11 @@ def execute_pipeline():
         secure=False
     )
     bucket_name = "bucket"
-    object_name = "data/Q9Y261.xml"
-    local_xml_path = f"/tmp/{object_name}"
+    object_name = "Q9Y261.xml"
+    #local_xml_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", object_name)
+    local_xml_path = os.path.join(os.path.abspath("dags"), "Q9Y261.xml")
     download_xml_from_minio(bucket_name, object_name, minio_client, local_xml_path)
+    
 
     # Parse the XML file and process the data
     parsed_data = parse_uniprot_xml(local_xml_path)
