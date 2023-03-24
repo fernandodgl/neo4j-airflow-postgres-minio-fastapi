@@ -15,7 +15,7 @@ def download_xml_from_minio(bucket_name, object_name, minio_client, local_xml_pa
     except S3Error as err:
         print(f"Error: {err}")
 
-def parse_uniprot_xml(file_name, **kwargs):
+def parse_uniprot_xml(file_name):
     try:
         tree = ET.parse(file_name, parser=ET.XMLParser(encoding='utf-8'))
         root = tree.getroot()
@@ -68,16 +68,13 @@ def parse_uniprot_xml(file_name, **kwargs):
             'organism_name': organism_name
         })
     
-    ti = kwargs['ti']
-    ti.xcom_push(key='parsed_data', value=parsed_data)
+    return parsed_data
 
-def connect_to_neo4j(uri, user, password, **kwargs):
+def connect_to_neo4j(uri, user, password):
     driver = GraphDatabase.driver(uri, auth=basic_auth(user, password))
     return driver
 
-def store_data_in_neo4j(driver, **kwargs):
-    ti = kwargs['ti']
-    parsed_data = ti.xcom_pull(key='parsed_data', task_ids='parse_uniprot_xml')
+def store_data_in_neo4j(driver, parsed_data):
     protein_label = "Protein"
     gene_label = "Gene"
     organism_label = "Organism"

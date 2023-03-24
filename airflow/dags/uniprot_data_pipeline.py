@@ -1,12 +1,12 @@
 import sys
 import os
+import logging
 from datetime import datetime, timedelta
 from parse_uniprot_xml import download_xml_from_minio, parse_uniprot_xml, connect_to_neo4j, store_data_in_neo4j
 from airflow.models import DAG, Variable
 from airflow.operators.python import PythonOperator
 from minio import Minio
 from minio.error import S3Error
-
 
 default_args = {
     'owner': 'airflow',
@@ -28,38 +28,48 @@ dag = DAG(
     max_active_runs=1
 )
 
-def execute_pipeline():
-    # Download the XML file from MinIO
-    minio_client = Minio(
-        "minio:9000",
-        access_key="admin",
-        secret_key="password",
-        secure=False
-    )
-    bucket_name = "bucket"
-    object_name = "Q9Y261.xml"
-    #local_xml_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", object_name)
-    local_xml_path = os.path.join(os.path.abspath("dags"), "Q9Y261.xml")
-    download_xml_from_minio(bucket_name, object_name, minio_client, local_xml_path)
-    
+bucket_name = "bucket"
+object_name = "Q9Y261.xml"
+local_xml_path = os.path.join(os.path.abspath("dags"), "Q9Y261.xml")
 
-    # Parse the XML file and process the data
-    parsed_data = parse_uniprot_xml(local_xml_path)
+minio_client = Minio(
+    "minio:9000",
+    access_key="admin",
+    secret_key="password",
+    secure=False
+)
 
-    # Connect to the Neo4j database
-    uri = "bolt://neo4j:7687"
-    user = "neo4j"
-    password = "password"
-    driver = connect_to_neo4j(uri, user, password)
+uri = "bolt://neo4j:7687"
+user = "neo4j"
+password = "password"
 
-    # Store the parsed data in the Neo4j database
-    store_data_in_neo4j(driver, parsed_data)
-
-    # Close the Neo4j driver
-    driver.close()
-
-execute_pipeline_task = PythonOperator(
-    task_id="execute_pipeline",
-    python_callable=execute_pipeline,
+download_xml_task = PythonOperator(
+    task_id="download_xml",
+    python_callable=download_xml_from_minio,
+    op_args=[bucket_name, object_name, minio_client, local_xml_path],
     dag=dag,
 )
+
+parse_uniprot_xml_task = PythonOperator(
+    task_id="parse_uniprot_xml",
+    python_callable=parse_uniprot_xml,
+    op_args=[local_xml_path],
+    provide_context=True,
+    dag=dag,
+)
+
+connect_to_neo4j_task = PythonOperator(
+    task_id="connect_to_neo4j",
+    python_callable=connect_to_neo4j,
+    op_args=[uri, user, password],
+    dag=dag,
+)
+
+store_data_in_neo4j_task = PythonOperator(
+    task_id="store_data_in_neo4j",
+    python_callable=store_data_in_neo4j,
+    provide_context=True,
+    dag=dag,
+)
+
+download_xml_task >> parse_uniprot_xml_task >> connect_to_neo4j_task >> store_data_in_neo4j_task

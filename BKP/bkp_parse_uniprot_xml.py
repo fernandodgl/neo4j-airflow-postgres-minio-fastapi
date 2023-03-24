@@ -5,6 +5,7 @@ from minio import Minio
 from minio.error import S3Error
 from neo4j import GraphDatabase, basic_auth
 
+
 def download_xml_from_minio(bucket_name, object_name, minio_client, local_xml_path):
     try:
         os.makedirs(os.path.dirname(local_xml_path), exist_ok=True)
@@ -15,7 +16,7 @@ def download_xml_from_minio(bucket_name, object_name, minio_client, local_xml_pa
     except S3Error as err:
         print(f"Error: {err}")
 
-def parse_uniprot_xml(file_name, **kwargs):
+def parse_uniprot_xml(file_name):
     try:
         tree = ET.parse(file_name, parser=ET.XMLParser(encoding='utf-8'))
         root = tree.getroot()
@@ -27,38 +28,23 @@ def parse_uniprot_xml(file_name, **kwargs):
     tree = ET.parse(file_name, parser=ET.XMLParser(encoding='utf-8'))
     root = tree.getroot()
     parsed_data = []
-    
-    for child in root:
-        protein_id = None
-        protein_name = None
-        gene_id = None
-        gene_name = None
-        organism_id = None
-        organism_name = None
-        
-        if child.tag == '{http://uniprot.org/uniprot}entry':
-            for entry_child in child:
-                if entry_child.tag == '{http://uniprot.org/uniprot}accession':
-                    protein_id = entry_child.text
-                elif entry_child.tag == '{http://uniprot.org/uniprot}protein':
-                    for protein_child in entry_child:
-                        if protein_child.tag == '{http://uniprot.org/uniprot}recommendedName':
-                            for recommended_name_child in protein_child:
-                                if recommended_name_child.tag == '{http://uniprot.org/uniprot}fullName':
-                                    protein_name = recommended_name_child.text
-                        elif protein_child.tag == '{http://uniprot.org/uniprot}alternativeName':
-                            for alternative_name_child in protein_child:
-                                if alternative_name_child.tag == '{http://uniprot.org/uniprot}fullName':
-                                    protein_name = alternative_name_child.text
-                elif entry_child.tag == '{http://uniprot.org/uniprot}gene':
-                    gene_id = entry_child.get('id')
-                    for gene_child in entry_child:
-                        if gene_child.tag == '{http://uniprot.org/uniprot}name':
-                            gene_name = gene_child.text
-                elif entry_child.tag == '{http://uniprot.org/uniprot}organism':
-                    organism_id = entry_child.find('{http://uniprot.org/uniprot}dbReference').get('id')
-                    organism_name = entry_child.find('{http://uniprot.org/uniprot}name').text
-        
+
+    for entry in root.findall('{http://uniprot.org/uniprot}entry'):
+        protein_id = entry.find('{http://uniprot.org/uniprot}accession').text
+        protein_name = entry.find('{http://uniprot.org/uniprot}name').text
+
+        gene = entry.find('{http://uniprot.org/uniprot}gene')
+        if gene is not None:
+            gene_id = gene.find('{http://uniprot.org/uniprot}name').attrib['id']
+            gene_name = gene.find('{http://uniprot.org/uniprot}name').text
+        else:
+            gene_id = None
+            gene_name = None
+
+        organism = entry.find('{http://uniprot.org/uniprot}organism')
+        organism_id = organism.find('{http://uniprot.org/uniprot}dbReference').attrib['id']
+        organism_name = organism.find('{http://uniprot.org/uniprot}name').text
+
         parsed_data.append({
             'protein_id': protein_id,
             'protein_name': protein_name,
@@ -67,17 +53,16 @@ def parse_uniprot_xml(file_name, **kwargs):
             'organism_id': organism_id,
             'organism_name': organism_name
         })
-    
-    ti = kwargs['ti']
-    ti.xcom_push(key='parsed_data', value=parsed_data)
 
-def connect_to_neo4j(uri, user, password, **kwargs):
+    return parsed_data
+
+
+def connect_to_neo4j(uri, user, password):
     driver = GraphDatabase.driver(uri, auth=basic_auth(user, password))
     return driver
 
-def store_data_in_neo4j(driver, **kwargs):
-    ti = kwargs['ti']
-    parsed_data = ti.xcom_pull(key='parsed_data', task_ids='parse_uniprot_xml')
+
+def store_data_in_neo4j(driver, parsed_data):
     protein_label = "Protein"
     gene_label = "Gene"
     organism_label = "Organism"
