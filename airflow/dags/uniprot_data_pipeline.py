@@ -1,5 +1,4 @@
 import sys
-sys.path.append('/minio')
 from datetime import datetime, timedelta
 from parse_uniprot_xml import download_xml_from_minio, parse_uniprot_xml, connect_to_neo4j, store_data_in_neo4j
 from airflow.models import DAG, Variable
@@ -16,6 +15,7 @@ default_args = {
     'email_on_retry': False,
     'retries': 1,
     'retry_delay': timedelta(minutes=5),
+    'max_active_runs': 4
 }
 
 dag = DAG(
@@ -30,18 +30,18 @@ dag = DAG(
 def execute_pipeline():
     # Download the XML file from MinIO
     minio_client = Minio(
-        "http://localhost:9000",
+        "minio:9000",
         access_key="admin",
         secret_key="password",
         secure=False
     )
     bucket_name = "bucket"
-    object_name = "Q9Y261.xml"
-    download_xml_from_minio(bucket_name, object_name, minio_client)
+    object_name = "data/Q9Y261.xml"
+    local_xml_path = f"/tmp/{object_name}"
+    download_xml_from_minio(bucket_name, object_name, minio_client, local_xml_path)
 
     # Parse the XML file and process the data
-    file_name = f"/data/{object_name}"
-    parsed_data = parse_uniprot_xml(object_name)
+    parsed_data = parse_uniprot_xml(local_xml_path)
 
     # Connect to the Neo4j database
     uri = "bolt://neo4j:7687"

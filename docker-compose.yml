@@ -37,9 +37,12 @@ services:
     entrypoint: >
       /bin/sh -c "
       sleep 10;
-      /usr/bin/mc anonymous -r set public minio/bucket http:/localhost:9000 admin password;
+      /usr/bin/mc alias set minio http://minio:9000 admin password;
       /usr/bin/mc mb minio/bucket;
-      /usr/bin/mc cp -r /data minio/bucket/
+      /usr/bin/mc cp -r /data minio/bucket/;
+      /usr/bin/mc ls minio/bucket;
+      echo 'MinIO bucket contents:';
+      /usr/bin/mc ls minio/bucket;
       "
     volumes:
       - ./data:/data  
@@ -56,6 +59,7 @@ services:
     environment:
       - SPARK_MODE=worker
       - SPARK_MASTER_URL=spark://spark-master:7077
+      - SPARK_WORKER_CORES=4
 
   airflow:
     build: ./airflow
