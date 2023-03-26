@@ -53,3 +53,17 @@
 └── TODO
 
 ###
+
+
+INCLUDE IN README.md
+--------------------
+Futures steps
+- after downloading dag for parsing, change the folder to /data instead of /dags
+- airflow variables for dags (variables are inside the dag)
+- line 37 (MiniO) - delete
+- use APOC lib for Neo4J
+- 
+
+
+Resources
+https://www.uniprot.org/help

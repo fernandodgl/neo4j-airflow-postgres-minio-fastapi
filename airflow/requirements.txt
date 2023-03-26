@@ -1,2 +1,7 @@
 minio
 neo4j
+xmlschema
+py2neo
+apache-airflow-providers-neo4j
+plyvel
+lxml

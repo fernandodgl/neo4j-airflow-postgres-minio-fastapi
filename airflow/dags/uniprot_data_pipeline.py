@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 from parse_uniprot_xml import download_xml_from_minio, parse_uniprot_xml, connect_to_neo4j, store_data_in_neo4j
 from airflow.models import DAG, Variable
 from airflow.operators.python import PythonOperator
+from py2neo import Graph
 from minio import Minio
 from minio.error import S3Error
 
@@ -31,6 +32,8 @@ dag = DAG(
 bucket_name = "bucket"
 object_name = "Q9Y261.xml"
 local_xml_path = os.path.join(os.path.abspath("dags"), "Q9Y261.xml")
+graph = Graph("bolt://neo4j:7687", auth=("neo4j", "password"))
+
 
 minio_client = Minio(
     "minio:9000",
@@ -68,6 +71,7 @@ connect_to_neo4j_task = PythonOperator(
 store_data_in_neo4j_task = PythonOperator(
     task_id="store_data_in_neo4j",
     python_callable=store_data_in_neo4j,
+    op_args=[graph],
     provide_context=True,
     dag=dag,
 )
