@@ -2,7 +2,7 @@ import sys
 import os
 import logging
 from datetime import datetime, timedelta
-from parse_uniprot_xml import download_xml_from_minio, parse_xml, store_data_in_neo4j
+from parse_uniprot_xml import download_xml_from_minio, parse_xml, store_data_in_neo4j, App 
 from airflow.models import DAG, Variable
 from airflow.operators.python import PythonOperator
 from py2neo import Graph
@@ -23,7 +23,7 @@ default_args = {
 dag = DAG(
     'uniprot_data_pipeline',
     default_args=default_args,
-    description='UniProt XML Data Pipeline',
+    description='uniprot_xml_datapipeline',
     schedule_interval=timedelta(days=1),
     catchup=False,
     max_active_runs=1
@@ -64,6 +64,9 @@ parse_xml_task = PythonOperator(
 store_data_in_neo4j_task = PythonOperator(
     task_id="store_data_in_neo4j",
     python_callable=store_data_in_neo4j,
+    op_kwargs={
+        'app': App
+    },
     provide_context=True,
     dag=dag,
 )

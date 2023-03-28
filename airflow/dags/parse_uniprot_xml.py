@@ -6,6 +6,7 @@ from neo4j import GraphDatabase
 from lxml import etree
 from airflow.models import TaskInstance
 import logging
+from neo4j import GraphDatabase
 
 class App:
 
@@ -19,21 +20,21 @@ class App:
     def _create_and_return_node_and_relationship(tx, entry):
         protein = parse_protein(entry)
         gene = parse_gene(entry)
-        organism = parse_organism(entry)
+        #organism = parse_organism(entry)
 
-        if protein and gene and organism:
+        if protein and gene: # and organism:
             query = (
                 "MERGE (protein_node:Protein {id: $protein_accession}) "
                 "MERGE (gene_node:Gene {name: $gene_name}) "
-                "MERGE (organism_node:Organism {name: $organism_name, taxonomy_id: $organism_taxonomy_id}) "
+                #"MERGE (organism_node:Organism {name: $organism_name, taxonomy_id: $organism_taxonomy_id}) "
                 "MERGE (full_name_node:FullName {name: $protein_full_name}) "
                 "MERGE (protein_node)-[:HAS_FULL_NAME]->(full_name_node) "
                 "MERGE (protein_node)-[:CODES_FOR]->(gene_node) "
-                "MERGE (gene_node)-[:BELONGS_TO]->(organism_node)"
+                #"MERGE (gene_node)-[:BELONGS_TO]->(organism_node)"
             )
 
             tx.run(query, protein_accession=protein["accession"], protein_full_name=protein["recommendedName"]["fullName"],
-                   gene_name=gene["name"][0], organism_name=organism["name"][0], organism_taxonomy_id=organism["dbReference"]["id"])
+                   gene_name=gene["name"][0]) #, organism_name=organism["name"][0], organism_taxonomy_id=organism["dbReference"]["id"])
 
     def create_node_and_relationship(self, entry):
         with self.driver.session() as session:
@@ -110,64 +111,12 @@ def parse_gene(entry):
                 return {"name": name[0].get("$")}
     return None
 
-def parse_organism(entry):
-    organism = entry.get("organism")
-    if organism is not None:
-        name = organism.get("name")
-        db_reference = organism.get("dbReference")
-        if name and db_reference is not None:
-            return {"name": name, "dbReference": {"id": db_reference[0].get("id")}}
-    return None
-
 # def parse_organism(entry):
-#     organism_list = entry.get("organism")
-#     if organism_list:
-#         for organism in organism_list:
-#             name = organism.get("name")
-#             db_reference = organism.get("dbReference")
-#             taxonomy_id = None
-#             if db_reference:
-#                 taxonomy_id = db_reference[0].get("id")
-#             if name:
-#                 return {"name": name[0].get("$"), "dbReference": {"id": taxonomy_id}}
+#     organism = entry.get("organism")
+#     if organism is not None:
+#         name = organism.get("name")
+#         db_reference = organism.get("dbReference")
+#         if name and db_reference is not None:
+#             return {"name": name, "dbReference": {"id": db_reference[0].get("id")}}
 #     return None
-
-def create_node_and_relationship(entry, graph):
-    organism_name = entry["organism_name"]
-    taxonomy_id = entry["taxonomy_id"]
-    gene_name = entry["gene_name"]
-    full_name = entry["full_name"]
-    accession = entry["accession"]
-
-    if taxonomy_id is not None:
-        query = """
-        MERGE (o:Organism {taxonomy_id: $taxonomy_id})
-        ON CREATE SET o.name = $organism_name
-        """
-
-        tx = graph.begin()
-        tx.run(query, organism_name=organism_name, taxonomy_id=taxonomy_id)
-        tx.commit()
-    else:
-        query = """
-        MERGE (o:Organism {name: $organism_name})
-        """
-
-        tx = graph.begin()
-        tx.run(query, organism_name=organism_name)
-        tx.commit()
-
-    query = """
-    MERGE (p:Protein {accession: $accession})
-    MERGE (g:Gene {name: $gene_name})
-    MERGE (f:FullName {name: $full_name})
-
-    CREATE (p)-[:BELONGS_TO_ORGANISM]->(o)
-    CREATE (p)-[:HAS_GENE]->(g)
-    CREATE (p)-[:HAS_FULL_NAME]->(f)
-    """
-
-    tx = graph.begin()
-    tx.run(query, accession=accession, gene_name=gene_name, full_name=full_name, organism_name=organism_name, taxonomy_id=taxonomy_id)
-    tx.commit()
 
