@@ -9,25 +9,25 @@ graph = Graph("bolt://neo4j:7687", auth=("neo4j", "password"))
 # Create a NodeMatcher instance
 matcher = NodeMatcher(graph)
 
-@app.get("/protein/{protein_id}")
-async def get_protein(protein_id: str):
-    protein = matcher.match("Protein", id=protein_id).first()
+@app.get("/protein/{protein_name}")
+async def get_protein(protein_name: str):
+    protein = matcher.match("Protein", name=protein_name).first()
     if protein:
         return protein
     else:
         return {"error": "Protein not found"}
 
-@app.get("/gene/{gene_id}")
-async def get_gene(gene_id: str):
-    gene = matcher.match("Gene", id=gene_id).first()
+@app.get("/gene/{gene_name}")
+async def get_gene(gene_name: str):
+    gene = matcher.match("Gene", name=gene_name).first()
     if gene:
         return gene
     else:
         return {"error": "Gene not found"}
 
-@app.get("/organism/{organism_id}")
-async def get_organism(organism_id: str):
-    organism = matcher.match("Organism", id=organism_id).first()
+@app.get("/organism/{organism_name}")
+async def get_organism(organism_name: str):
+    organism = matcher.match("Organism", name=organism_name).first()
     if organism:
         return organism
     else:

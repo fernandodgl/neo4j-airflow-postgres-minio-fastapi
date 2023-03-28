@@ -64,6 +64,7 @@ parse_xml_task = PythonOperator(
 store_data_in_neo4j_task = PythonOperator(
     task_id="store_data_in_neo4j",
     python_callable=store_data_in_neo4j,
+    op_args=[uri, user, password],
     provide_context=True,
     dag=dag,
 )
