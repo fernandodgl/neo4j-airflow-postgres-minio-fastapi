@@ -7,7 +7,6 @@
 [X] 2) Install packages:
 [x] - airflow
 [x] - postgres (airflow) 
-[x] - spark
 [x] - neo4j
 [x] - minio
 [x] - fastapi
@@ -23,11 +22,8 @@
 [x] - spark
 [x] - neo4j
 [x] - minio
-[ ] - services dependencies
+[x] - services dependencies
 
-[ ] 7)
-
-[ ] 8)
 
 ## FILE STRUCTURE
 .
