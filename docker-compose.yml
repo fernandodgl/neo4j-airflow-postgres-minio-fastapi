@@ -46,21 +46,7 @@ services:
       "
     volumes:
       - ./data:/data  
-  
-  spark-master:
-    image: bitnami/spark:3.2.1
-    environment:
-      - SPARK_MODE=master
-    ports:                # check
-      - "7077:7077"       # check 
-
-  spark-worker:
-    image: bitnami/spark:3.2.1
-    environment:
-      - SPARK_MODE=worker
-      - SPARK_MASTER_URL=spark://spark-master:7077
-      - SPARK_WORKER_CORES=4
-
+    
   airflow:
     build: ./airflow
     depends_on:
