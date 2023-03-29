@@ -60,11 +60,6 @@ INCLUDE IN README.md
 Futures steps
 - after downloading dag for parsing, change the folder to /data instead of /dags
 - airflow variables for dags (variables are inside the dag)
-- line 37 (MiniO) - delete
-- use APOC lib for Neo4J
-- build a script to 'understand' the uniprot schema and automatically create all nodes, relationships, properties, etc (complex)
-- postgres having similar behavior to the Neo4j container issue
 - there is an issue with a 'fresh start' running the repo. Neo4j container needs to be postponed otherwise you will need to docker-compose 'down' and then 'up'
-
-Resources
-https://www.uniprot.org/help
+- implement Neo4j Spark Connector for complex queries (scalability) - Scala or Java needed.
+- Implement Spark (PySpark)for parallel processing related to improve scalability in future updates in the project
