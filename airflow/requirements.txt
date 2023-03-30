@@ -3,5 +3,7 @@ neo4j
 xmlschema
 py2neo
 apache-airflow-providers-neo4j
+apache-airflow-providers-apache-spark
 plyvel
 lxml
+pyspark

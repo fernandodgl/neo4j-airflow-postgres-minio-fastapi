@@ -53,6 +53,9 @@ services:
       - SPARK_MODE=master
     ports:                # check
       - "7077:7077"       # check 
+    volumes:
+      - spark-data:/spark-data
+    command: bin/spark-class org.apache.spark.deploy.master.Master  
 
   spark-worker:
     image: bitnami/spark:3.2.1
@@ -60,6 +63,11 @@ services:
       - SPARK_MODE=worker
       - SPARK_MASTER_URL=spark://spark-master:7077
       - SPARK_WORKER_CORES=4
+    depends_on:
+      - spark-master
+    volumes:
+      - spark-data:/spark-data
+    command: bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077
 
   airflow:
     build: ./airflow
@@ -111,6 +119,7 @@ volumes:
   postgres-data:
   neo4j-data:
   airflow-dags:
+  spark-data:
   data:
 
 networks:

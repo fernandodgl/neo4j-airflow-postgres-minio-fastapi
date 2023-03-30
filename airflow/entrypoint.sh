@@ -1,6 +1,10 @@
 #!/bin/bash
 set -e
 apt-get update && apt-get upgrade
+
+# Prevent errors from unset variables and pipelines exiting from shell
+set -euo pipefail
+
 # Initialize the database
 airflow db init
 
@@ -14,8 +18,6 @@ airflow users create \
     --email admin@example.com || true
 
 # Start the scheduler and webserver in the background
-
-
 airflow scheduler &
 airflow webserver
 

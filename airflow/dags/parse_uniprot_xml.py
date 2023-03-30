@@ -5,8 +5,10 @@ from minio.error import S3Error
 from neo4j import GraphDatabase
 from lxml import etree
 from airflow.models import TaskInstance
+from pyspark.sql import SparkSession
+
 import logging
-from neo4j import GraphDatabase
+
 
 class App:
 
@@ -40,7 +42,6 @@ class App:
         with self.driver.session() as session:
             session.write_transaction(self._create_and_return_node_and_relationship, entry)
 
-
 def download_xml_from_minio(bucket_name, object_name, minio_client, local_xml_path):
     try:
         os.makedirs(os.path.dirname(local_xml_path), exist_ok=True)
@@ -59,15 +60,6 @@ def download_xml_from_minio(bucket_name, object_name, minio_client, local_xml_pa
     except S3Error as err:
         print(f"Error: {err}")
 
-def parse_xml(local_xml_path, **kwargs):
-    schema = xmlschema.XMLSchema('https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot.xsd')
-    with open(local_xml_path, "r", encoding="utf-8") as f:
-        xml_content = f.read()
-    entry_dict = schema.to_dict(xml_content)
-    ti = kwargs['ti']
-    ti.xcom_push(key='data', value=entry_dict)
-    return entry_dict
- 
 def store_data_in_neo4j(**kwargs):
     uri = "bolt://neo4j:7687"
     user = "neo4j"
@@ -75,7 +67,7 @@ def store_data_in_neo4j(**kwargs):
 
     app = App(uri, user, password)
     ti = kwargs['ti']
-    data = ti.xcom_pull(task_ids='parse_uniprot_xml', key='data')
+    data = ti.xcom_pull(task_ids='parse_uniprot_xml_spark', key='data')
 
     entry_list = data.get("entry", [])
 
@@ -86,8 +78,6 @@ def store_data_in_neo4j(**kwargs):
     for entry in entry_list:
         app.create_node_and_relationship(entry)
 
-    app.close()
-    
 def parse_protein(entry):
     protein = entry.get("protein")
     if protein is not None:
@@ -119,4 +109,3 @@ def parse_gene(entry):
 #         if name and db_reference is not None:
 #             return {"name": name, "dbReference": {"id": db_reference[0].get("id")}}
 #     return None
-

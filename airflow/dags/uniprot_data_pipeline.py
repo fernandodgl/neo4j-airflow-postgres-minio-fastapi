@@ -2,9 +2,10 @@ import sys
 import os
 import logging
 from datetime import datetime, timedelta
-from parse_uniprot_xml import download_xml_from_minio, parse_xml, store_data_in_neo4j, App 
+from parse_uniprot_xml import download_xml_from_minio, store_data_in_neo4j, App 
 from airflow.models import DAG, Variable
 from airflow.operators.python import PythonOperator
+from airflow.providers.apache.spark.operators.spark_submit import SparkSubmitOperator
 from py2neo import Graph
 from minio import Minio
 from minio.error import S3Error
@@ -34,17 +35,12 @@ object_name = "Q9Y261.xml"
 local_xml_path = os.path.join(os.path.abspath("dags"), "Q9Y261.xml")
 graph = Graph("bolt://neo4j:7687", auth=("neo4j", "password"))
 
-
 minio_client = Minio(
     "minio:9000",
     access_key="admin",
     secret_key="password",
     secure=False
 )
-
-uri = "bolt://neo4j:7687"
-user = "neo4j"
-password = "password"
 
 download_xml_task = PythonOperator(
     task_id="download_xml",
@@ -53,11 +49,14 @@ download_xml_task = PythonOperator(
     dag=dag,
 )
 
-parse_xml_task = PythonOperator(
-    task_id="parse_uniprot_xml",
-    python_callable=parse_xml,
+parse_xml_task = SparkSubmitOperator(
+    task_id="parse_uniprot_xml_spark",
+    application="/opt/spark/parse_uniprot_xml_spark.py",
+    conn_id="spark_default",
+    executor_cores=1,
+    executor_memory="512m",
+    driver_memory="512m",
     op_args=[local_xml_path],
-    provide_context=True,
     dag=dag,
 )
 
