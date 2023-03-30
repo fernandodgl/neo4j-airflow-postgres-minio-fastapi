@@ -1,6 +1,9 @@
 
 # Weave.bio Data Engineering Challenge
 
+This project is a data pipeline that extracts data from Uniprot, a large protein database, and stores it in a Neo4j graph database. The pipeline is implemented using Airflow, Docker, and Python. The data is downloaded from Uniprot in XML format, parsed using the Uniprot schema, and stored in Neo4j using the Neo4j Python driver. A basic REST API is provided to query the general information included in the data. The project is designed to be scalable and extensible, with the potential to add more data sources by implementing Spark and other tools such as Kafka for streaming and more in the future.
+
+
 This project contains the following containers:
 
 * Postgres: Postgres database for Airflow metadata 
@@ -61,9 +64,14 @@ This project contains the following containers:
 
 ## Setup
 
+### Requirements
+    
+    $ Must have Docker installed in your machine. Ignore it if using CDE (Cloud Development Environment), i.e., Gitpod, GitHub Codespaces, etc
+
 ### Clone project
 
     $ git clone https://github.com/fernandodgl/weavebio
+
 ### Build containers
 
 Inside the 'weavebio' folder (root)
