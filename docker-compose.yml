@@ -53,7 +53,6 @@ services:
       - postgres
       - minio
       - neo4j
-      - spark-master
     environment:
       - AIRFLOW__CORE__EXECUTOR=LocalExecutor
       - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
