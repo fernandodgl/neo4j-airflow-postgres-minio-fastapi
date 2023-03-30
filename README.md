@@ -19,13 +19,6 @@ This project contains the following containers:
     * Image: apache/airflow:2.2.3
     * Port: 8080
 
-* Spark: Spark Master.
-    * Image: bitnami/spark:3.2.1
-    * Port: 7077
-
-* Spark-worker-N: Spark workers. More workers can be added if needed.
-    * Image: bitnami/spark:3.2.1
-    
 * MiniO: Local Datalake
     * Image: postgres:13
     * Web console Port: 9000
