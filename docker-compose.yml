@@ -17,7 +17,6 @@ services:
     ports: 
       - '9000:9000'
       - '9001:9001'
-    
     volumes:
       - data:/data
     environment:
@@ -47,12 +46,23 @@ services:
     volumes:
       - ./data:/data  
     
+  neo4j:
+    image: neo4j:latest
+    environment:
+      - NEO4J_AUTH=neo4j/password
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    volumes:
+      - neo4j-data:/data    
+
   airflow:
     build: ./airflow
     depends_on:
       - postgres
       - minio
       - neo4j
+      - fastapi
     environment:
       - AIRFLOW__CORE__EXECUTOR=LocalExecutor
       - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
@@ -67,30 +77,17 @@ services:
       - airflow-dags:/opt/airflow/dagsairflow-dags:/opt/airflow/dags
       - ./logs:/opt/airflow/logs
 
-  neo4j:
-    image: neo4j:5.3.0
-    # command: bash -c 'sleep 20'
-    environment:
-      - NEO4J_AUTH=neo4j/password
-    ports:
-      - "7474:7474"
-      - "7687:7687"
-    volumes:
-      - neo4j-data:/data    
-
   fastapi:
     build: ./fastapi
     environment:
       - APP_MODULE=app:app
     depends_on:
       - neo4j
-      - airflow
     ports:
       - "8000:80"
     command: bash -c "sleep 30 && uvicorn app:app --host=0.0.0.0 --port=80"  
     volumes:
       - ./fastapi:/app
-
 
 volumes:
   postgres-data:
