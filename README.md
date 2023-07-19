@@ -64,7 +64,7 @@ This project contains the following containers:
 
 ### Requirements
     
-    $ Must have Docker installed in your machine. Ignore it if using CDE (Cloud Development Environment), i.e., Gitpod, GitHub Codespaces, etc
+    $ Must have Docker installed on your machine. Ignore it if using CDE (Cloud Development Environment), i.e., Gitpod, GitHub Codespaces, etc
 
 ### Clone project
 
@@ -78,7 +78,7 @@ Inside the 'weavebio' folder (root)
 
 ### Start containers
 
-At the same path above:
+On the same path above:
 
     $ docker-compose up
 
@@ -98,11 +98,11 @@ If you want to run in background:
 
 ## References
 
-[neo4j.com] (https://neo4j.com/docs/ogm-manual/current/reference/)
+[neo4j.com](https://neo4j.com/docs/ogm-manual/current/reference/)
 
-[uniprot.org] (https://www.uniprot.org/help/technical)
+[uniprot.org](https://www.uniprot.org/help/technical)
 
-[airflow.apache.org] (https://airflow.apache.org/docs/apache-airflow/stable/)
+[airflow.apache.org](https://airflow.apache.org/docs/apache-airflow/stable/)
 
-[min.io] ([https://min.io/docs/minio/linux/developers/go/API.html](https://min.io/docs/minio/linux/reference/minio-server/minio-server.html)
+[min.io](https://min.io/docs/minio/linux/developers/go/API.html)
 
